@@ -2148,11 +2148,11 @@
 
         .pressure-rows {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 0.75rem;
         }
 
-        @media (max-width: 480px) { .pressure-rows { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .pressure-rows { grid-template-columns: 1fr; } }
 
         .pressure-row {
             display: flex;
@@ -2178,8 +2178,9 @@
             font-family: 'Courier New', monospace;
         }
 
-        .pressure-row.inflow  .pressure-row-value { color: #ef4444; }
-        .pressure-row.outflow .pressure-row-value { color: #4ade80; }
+        .pressure-row.inflow    .pressure-row-value { color: #ef4444; }
+        .pressure-row.outflow   .pressure-row-value { color: #4ade80; }
+        .pressure-row.transfer  .pressure-row-value { color: #f7931a; }
 
         .pressure-bar-track {
             height: 4px;
@@ -2196,8 +2197,9 @@
             transition: width 0.6s ease;
         }
 
-        .pressure-row.inflow  .pressure-bar-fill { background: #ef4444; }
-        .pressure-row.outflow .pressure-bar-fill { background: #4ade80; }
+        .pressure-row.inflow   .pressure-bar-fill { background: #ef4444; }
+        .pressure-row.outflow  .pressure-bar-fill { background: #4ade80; }
+        .pressure-row.transfer .pressure-bar-fill { background: #f7931a; }
 
         /* ── Bitcoin Price Dashboard ── */
         .price-dashboard {
@@ -2551,6 +2553,13 @@
                 <span class="pressure-row-value" id="pressureOutflow">— BTC</span>
                 <div class="pressure-bar-track">
                     <div class="pressure-bar-fill" id="pressureOutflowBar"></div>
+                </div>
+            </div>
+            <div class="pressure-row transfer">
+                <span class="pressure-row-label">🐋 Whale Transfers</span>
+                <span class="pressure-row-value" id="pressureTransfer">— BTC</span>
+                <div class="pressure-bar-track">
+                    <div class="pressure-bar-fill" id="pressureTransferBar"></div>
                 </div>
             </div>
         </div>
@@ -3256,26 +3265,52 @@ const KNOWN_EXCHANGES = {
     'bc1qgdjqv0av3q56jvd82tkdjpy7gdp9ut8tlqmgrpmv24sq90ecnvqqjwvw97':  'Binance',
     '1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s':                              'Binance',
     'bc1qazcm763858nkj2dj986etajv6wquslv8uxwczt':                       'Binance',
+    '1FzWLkAahHooV3kzTgyx6qsswXJ6sCXkSR':                              'Binance',
+    '3M219KR5vEneNb47ewrPfWyb5jQ2DjxRP6':                              'Binance',
+    '1GR9qNz7zgtaW5HwwVpEJWMnGWhsbsieCG':                              'Binance',
+    'bnb1fnd0k5l4p3ck2j9x9dp36chk059w977pszdgdz':                       'Binance',
     /* Coinbase */
     '3Kzh9qAqVWQhEsfQz7zEQL1EuSx5tyNLNS':                              'Coinbase',
     '3LQUu4v9z6KNch71j7kbj8GPeAGUo1FW6a':                              'Coinbase',
     'bc1ql49ydapnjafl5t2cp9zqpjwe6pdgmxy98859v2':                       'Coinbase',
+    '3LYJfcfHPXYJreMsASk2jkn69LWEYKzexb':                              'Coinbase',
+    '3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC':                              'Coinbase',
+    '1LR2tDxWKBtLkgHYHTMvXqQbvVzuMeJSjF':                              'Coinbase',
+    'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh':                       'Coinbase',
     /* Kraken */
     '3EhjYBM3uAmJUWpbFqWLgkdmMjBUqyUygC':                              'Kraken',
     'bc1qet4hjhlevq2at5sqm9yntp7scm2xa44qhkn3gx':                       'Kraken',
+    '1FBhcnGhFMKDrFZzaRUYamhPW6LBbFsZxp':                              'Kraken',
+    'bc1qfmu4gk0jmumfqqluvdmgnrmfkhdjltwzky3k5a':                       'Kraken',
     /* Bitfinex */
     '3D2oetdNuZUqQHPJmcMDDHYoqkyNVsFk9r':                              'Bitfinex',
     '1KYiKJEfdJtap9QX2v9BXJMpz2SfU4pgZw':                              'Bitfinex',
+    '3JZq4atEAaEAcj1CeKMmQ6TdFupXWynPbs':                              'Bitfinex',
+    '1EnYscjkFsQ1Psxj5L6Ts4sXCFGMrFYuWk':                              'Bitfinex',
     /* Bitstamp */
     '1LKeey1MfjLmwAASsVtTkvE2a9if6ev3LH':                              'Bitstamp',
+    '3NUf32FYiCKzKzpF3hKE89FcvFABEo7VKi':                              'Bitstamp',
+    '1HB5XMLmzFVj8ALj6mfBsbifRoD4miY36v':                              'Bitstamp',
     /* Huobi / HTX */
     '1HckjUpRGcrrRAtFaaCAUaGjoPkge3pJMb':                              'Huobi',
+    '1G47mSr3oANXMafVrR8UC4pzV7FEAzo3r9':                              'Huobi',
+    'bc1qenf50l2mfb49qr7kf8dkp3kkl4v6pq7gphqlxl':                       'Huobi',
     /* OKX */
     '3LCGsSmfr24demGvriN4e3ft8wEcDuHFqh':                              'OKX',
+    '1TipHJUhCBrNKoRUJpNuDQfMGMdvvfxjv':                               'OKX',
+    'bc1q0xn5p4s6jmkwt5wd2wy5wjq5ewkd0zjpzn4yaq':                       'OKX',
     /* Gemini */
     '393R2MkBYRjQwEEhFXYzGvPqGsWBCGF9Na':                              'Gemini',
+    '361gH5HfuZJCkf2Rr3cqY2XNdnMjBDtk6y':                              'Gemini',
     /* Bybit */
     'bc1qll4vs3ye5z9q5xtspk9pgahf4kuf05qjqgqjlj':                       'Bybit',
+    '1A1zP1eP5QGefi2DMPTfTL5SLmv7Divfna':                              'Bybit',
+    /* Crypto.com */
+    '3LpE3fEMdEGBys9AEhfrR4HjHyFrHGjXzr':                              'Crypto.com',
+    '1GQjBCbStS6cJDiMuXbxBbKUyB6vifJfkN':                              'Crypto.com',
+    /* KuCoin */
+    '1Nqe9pJ9Cj6StWFBJjxd7UfCupV8KBF7aN':                              'KuCoin',
+    '3E35SFZkfLMGo4qX5aVs1bBDSnAuGgBLx3':                              'KuCoin',
 };
 
 // Per-session cache of mempool.space API label results
@@ -3780,50 +3815,61 @@ function updateWhaleWave(txs) {
 /* ── Whale Pressure Indicator ───────────────────────── */
 
 function updatePressureIndicator(txs) {
-    let inflow  = 0; // wallet/unknown → exchange  (bearish)
-    let outflow = 0; // exchange → wallet/unknown  (bullish)
+    let inflow   = 0; // wallet → exchange  (sell pressure)
+    let outflow  = 0; // exchange → wallet  (accumulation)
+    let transfer = 0; // wallet → wallet    (whale moves)
 
     for (const tx of txs) {
-        const from  = senderAddr(tx);
-        const to    = receiverAddr(tx);
-        const btc   = txValueSats(tx) / SATS;
-        const flow  = getFlow(from, to);
+        const btc = txValueSats(tx) / SATS;
 
-        if (flow.dst.type === 'exchange' && flow.src.type !== 'exchange') {
-            inflow  += btc;
-        } else if (flow.src.type === 'exchange' && flow.dst.type !== 'exchange') {
-            outflow += btc;
+        // Scan ALL inputs for exchange addresses
+        const fromExchange = (tx.vin || []).some(vin => {
+            const addr = vin.prevout?.scriptpubkey_address;
+            return addr && getLabel(addr) !== null;
+        });
+
+        // Scan ALL outputs for exchange addresses
+        const toExchange = (tx.vout || []).some(vout => {
+            const addr = vout.scriptpubkey_address;
+            return addr && getLabel(addr) !== null;
+        });
+
+        if (toExchange && !fromExchange) {
+            inflow   += btc;
+        } else if (fromExchange && !toExchange) {
+            outflow  += btc;
+        } else if (!fromExchange && !toExchange) {
+            transfer += btc;
         }
     }
 
-    const total = inflow + outflow;
+    const total = inflow + outflow + transfer;
 
-    document.getElementById('pressureInflow').textContent  =
-        fmtBtc(inflow)  + ' BTC';
-    document.getElementById('pressureOutflow').textContent =
-        fmtBtc(outflow) + ' BTC';
+    document.getElementById('pressureInflow').textContent   = fmtBtc(inflow)   + ' BTC';
+    document.getElementById('pressureOutflow').textContent  = fmtBtc(outflow)  + ' BTC';
+    document.getElementById('pressureTransfer').textContent = fmtBtc(transfer) + ' BTC';
 
-    // Scale bars relative to whichever side is larger
+    // Scale bars relative to total volume
     if (total > 0) {
-        document.getElementById('pressureInflowBar').style.width  =
-            (inflow  / total * 100).toFixed(1) + '%';
-        document.getElementById('pressureOutflowBar').style.width =
-            (outflow / total * 100).toFixed(1) + '%';
+        document.getElementById('pressureInflowBar').style.width   = (inflow   / total * 100).toFixed(1) + '%';
+        document.getElementById('pressureOutflowBar').style.width  = (outflow  / total * 100).toFixed(1) + '%';
+        document.getElementById('pressureTransferBar').style.width = (transfer / total * 100).toFixed(1) + '%';
     }
 
-    const sig  = document.getElementById('pressureSignal');
-    const diff = inflow - outflow;
-    const threshold = total * 0.1; // within 10% → neutral
+    const sig       = document.getElementById('pressureSignal');
+    const exchTotal = inflow + outflow;
+    const diff      = inflow - outflow;
+    const threshold = exchTotal * 0.1; // within 10% of exchange volume → neutral
 
-    if (total === 0 || (Math.abs(diff) < threshold)) {
-        sig.className = 'pressure-signal neutral';
+    if (exchTotal === 0 || Math.abs(diff) < threshold) {
+        sig.className   = 'pressure-signal neutral';
         sig.textContent = '⚖️ Neutral';
     } else if (diff > 0) {
-        sig.className = 'pressure-signal bearish';
-        sig.textContent = '🐻 Bearish Pressure';
+        sig.className   = 'pressure-signal bearish';
+        sig.textContent = '🔴 Sell Pressure';
     } else {
-        sig.className = 'pressure-signal bullish';
-        sig.textContent = '🐂 Bullish Accumulation';
+        sig.className   = 'pressure-signal bullish';
+        sig.textContent = '🟢 Accumulation';
     }
 }
 
